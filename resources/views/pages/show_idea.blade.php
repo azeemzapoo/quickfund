@@ -1,0 +1,1 @@
+this is where i will show the idea details
