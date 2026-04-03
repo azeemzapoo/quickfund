@@ -3,6 +3,11 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\idea;
+use App\Models\user;
+use App\Models\pledge;
+use App\Models\contribution;
+use App\Models\investment;
 
 class IdeaController extends Controller
 {
@@ -19,19 +24,6 @@ class IdeaController extends Controller
         return view('pages.create_idea');
     }
 
-
-    public function store(Request $request)
-    {
-        idea::create([
-            'title' => $request->title,
-            'description' => $request->description,
-            'funding_goal' => $request->funding_goal,
-            'current_amount' => 0,
-            'user_id' => 1 // temporary
-        ]);
-
-        return redirect('/ideas');
-    }
 
 
     public function show($id){

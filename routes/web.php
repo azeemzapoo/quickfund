@@ -23,6 +23,7 @@ Route::get('/', function () {
 Route::get('/ideas', [IdeaController::class, 'index']);
 Route::get('/ideas/create', [IdeaController::class, 'create']);
 Route::post('/ideas', [IdeaController::class, 'store']);
+
 Route::get('/ideas/{id}', [IdeaController::class, 'show']);
 Route::get('/ideas/{id}/edit', [IdeaController::class, 'edit']);
 Route::put('/ideas/{id}', [IdeaController::class, 'update']);
