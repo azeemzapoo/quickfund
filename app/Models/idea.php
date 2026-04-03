@@ -13,7 +13,7 @@ class idea extends Model
         'description',
         'funding_goal',
         'current_amount',
-        'user_id',
+        'user_id'
 
     ];
 
