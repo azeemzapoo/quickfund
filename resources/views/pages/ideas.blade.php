@@ -11,6 +11,13 @@
             <p>Current Amount: {{ $idea->current_amount }}</p>
             <p> By: {{ $idea->user->name }}</p>
             <a href="/ideas/{{ $idea->id }}">View Idea</a>
+            <a href="/ideas/{{ $idea->id }}/edit">Edit</a>
+            <form action="/ideas/{{ $idea->id }}" method="POST" style="display:inline;">
+                @csrf
+                @method('DELETE')
+
+                <button type="submit">Delete</button>
+            </form>
         </div>
     @endforeach
 @endsection
