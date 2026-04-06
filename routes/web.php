@@ -22,6 +22,7 @@ Route::get('/', function () {
 
 Route::get('/ideas', [IdeaController::class, 'index']);
 Route::get('/ideas/create', [IdeaController::class, 'create']);
+
 Route::post('/ideas', [IdeaController::class, 'store']);
 
 Route::get('/ideas/{id}', [IdeaController::class, 'show']);

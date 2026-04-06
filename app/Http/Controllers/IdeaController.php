@@ -30,6 +30,18 @@ class IdeaController extends Controller
         $idea = idea::find($id);
         return view('pages.show_idea', compact('idea'));
     }
+
+    public function store(Request $request){
+        Idea::create([
+            'title' => $request->title,
+            'description' => $request->description,
+            'funding_goal' => $request->funding_goal,
+            'user_id' => 1,
+            'current_amount' => 0,
+
+        ]);
+        return redirect('/ideas');
+    }
     
     
 }
