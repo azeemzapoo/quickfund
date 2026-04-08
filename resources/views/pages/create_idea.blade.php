@@ -1,4 +1,9 @@
-This is the create idea page
+@extends('layouts.app')
+
+@section('content')
+
+
+
 
 <h1>Create Idea</h1>
 
@@ -33,3 +38,5 @@ This is the create idea page
 
     <button type="submit">Create Idea</button>
 </form>
+
+@endsection

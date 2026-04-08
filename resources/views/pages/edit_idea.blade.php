@@ -1,3 +1,4 @@
+
 <h1>Edit Idea</h1>
 
 <form method="POST" action="/ideas/{{ $idea->id }}">
