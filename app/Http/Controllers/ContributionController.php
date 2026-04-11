@@ -20,7 +20,7 @@ class ContributionController extends Controller
     public function store(Request $request){
         Contribution::create([
             'role' => $request->role,
-            'user_id' => $request->user_id,
+            'user_id' => auth()->id(),
             'idea_id' => $request->idea_id,
         ]);
         return redirect('/contributions');

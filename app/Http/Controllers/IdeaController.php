@@ -15,7 +15,11 @@ class IdeaController extends Controller
 
 
     public function index(){
-        $ideas = idea::all();
+        $ideas = idea::with('user')
+            ->withCount(['pledges', 'contributions', 'investments'])
+            ->latest()
+            ->get();
+
         return view('pages.ideas', compact('ideas'));
     }
 
@@ -27,7 +31,10 @@ class IdeaController extends Controller
 
 
     public function show($id){
-        $idea = idea::find($id);
+        $idea = idea::with('user')
+            ->withCount(['pledges', 'contributions', 'investments'])
+            ->findOrFail($id);
+
         return view('pages.show_idea', compact('idea'));
     }
 
@@ -39,20 +46,23 @@ class IdeaController extends Controller
                 'funding_goal'=> 'required|numeric|min:1'            
                 ]) ;
 
-        Idea::create([
+        $idea = Idea::create([
             'title' => $request->title,
             'description' => $request->description,
             'funding_goal' => $request->funding_goal,
-            'user_id' => 1,
+            'user_id' => auth()->id(),
             'current_amount' => 0,
 
         ]);
-        return redirect('/')->with('success','Idea Created Successfully!');
+        return redirect()->route('ideas.show', $idea->id)->with('success','Idea Created Successfully!');
     }
 
 
     public function edit($id){ 
         $idea = Idea::findOrFail($id);
+        if ($idea->user_id !== auth()->id()) {
+            abort(403, 'You are not authorized to edit this idea.');
+        }
         return view('pages.edit_idea', compact('idea'));
     }
 
@@ -66,6 +76,9 @@ class IdeaController extends Controller
         ]);
     
         $idea = Idea::findOrFail($id);
+        if ($idea->user_id !== auth()->id()) {
+            abort(403, 'You are not authorized to update this idea.');
+        }
     
         $idea->update([
             'title' => $request->title,
@@ -80,6 +93,9 @@ class IdeaController extends Controller
     public function destroy($id)
         {
             $idea = Idea::findOrFail($id);
+            if ($idea->user_id !== auth()->id()) {
+                abort(403, 'You are not authorized to delete this idea.');
+            }
 
             $idea->delete();
 

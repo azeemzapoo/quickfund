@@ -17,7 +17,7 @@ class PledgeController extends Controller
     public function store(Request $request){
         Pledge::create([
             'amount' => $request->amount,
-            'user_id' => $request->user_id,
+            'user_id' => auth()->id(),
             'idea_id' => $request->idea_id,
         ]);
         $idea->current_amount += $request->amount;

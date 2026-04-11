@@ -1,5 +1,5 @@
 @extends('layouts.app')
 
 @section('content')
-    <x-simple-page title="Home" />
+    <x-simple-page title="Contributions" />
 @endsection

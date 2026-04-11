@@ -16,7 +16,7 @@ public function store(Request $request, $id)
 
     return Investment::create([
         'amount' => $request->amount,
-        'user_id' => 1,
+        'user_id' => auth()->id(),
         'idea_id' => $idea->id
     ]);
 }
