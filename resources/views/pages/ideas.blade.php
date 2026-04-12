@@ -146,11 +146,20 @@
     }
 
     .idea-card {
+        position: relative;
         border: 1px solid #dce4ee;
         border-radius: 20px;
         background: #fff;
         padding: 1.55rem 1.6rem 1.45rem;
         box-shadow: 0 8px 24px rgba(16, 24, 40, 0.05);
+        cursor: pointer;
+        transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+    }
+
+    .idea-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 14px 32px rgba(16, 24, 40, 0.08);
+        border-color: #ced9e7;
     }
 
     .idea-card__top {
@@ -271,6 +280,8 @@
     }
 
     .idea-btn {
+        position: relative;
+        z-index: 2;
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -366,6 +377,7 @@
                             category: @js($idea['category'])
                         }"
                         x-show="(activeCategory === 'All' || activeCategory === category) && (search.trim() === '' || title.includes(search.toLowerCase()) || description.includes(search.toLowerCase()))"
+                        @click="window.location = '{{ route('ideas.show', $idea['id']) }}'"
                     >
                         <div class="idea-card__top">
                             <span class="idea-chip">{{ $idea['category'] }}</span>
@@ -395,13 +407,13 @@
                         </div>
 
                         <div class="idea-actions">
-                            <a href="{{ route('ideas.show', $idea['id']) }}" class="idea-btn idea-btn--support">
+                            <a href="{{ route('ideas.show', $idea['id']) }}" @click.stop class="idea-btn idea-btn--support">
                                 <span>Support</span>
                             </a>
-                            <a href="{{ route('ideas.show', $idea['id']) }}" class="idea-btn idea-btn--invest">
+                            <a href="{{ route('ideas.show', $idea['id']) }}" @click.stop class="idea-btn idea-btn--invest">
                                 <span>Invest</span>
                             </a>
-                            <a href="{{ route('ideas.show', $idea['id']) }}" class="idea-btn idea-btn--contribute">
+                            <a href="{{ route('ideas.show', $idea['id']) }}" @click.stop class="idea-btn idea-btn--contribute">
                                 <span>Contribute</span>
                             </a>
                         </div>

@@ -32,6 +32,7 @@ class IdeaController extends Controller
 
     public function show($id){
         $idea = idea::with('user')
+            ->with(['contributions.user'])
             ->withCount(['pledges', 'contributions', 'investments'])
             ->findOrFail($id);
 
