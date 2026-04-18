@@ -2,20 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Idea;
 use Illuminate\Http\Request;
-use App\Models\idea;
-use App\Models\user;
-use App\Models\pledge;
-use App\Models\contribution;
-use App\Models\investment;
 
 class IdeaController extends Controller
 {
-    //
-
-
-    public function index(){
-        $ideas = idea::with('user')
+    public function index()
+    {
+        $ideas = Idea::with('user')
             ->withCount(['pledges', 'contributions', 'investments'])
             ->latest()
             ->get();
@@ -23,15 +17,14 @@ class IdeaController extends Controller
         return view('pages.ideas', compact('ideas'));
     }
 
-
-    public function create(){
+    public function create()
+    {
         return view('pages.create_idea');
     }
 
-
-
-    public function show($id){
-        $idea = idea::with('user')
+    public function show($id)
+    {
+        $idea = Idea::with('user')
             ->with(['contributions.user'])
             ->withCount(['pledges', 'contributions', 'investments'])
             ->findOrFail($id);
@@ -39,13 +32,13 @@ class IdeaController extends Controller
         return view('pages.show_idea', compact('idea'));
     }
 
-    public function store(Request $request){
-
+    public function store(Request $request)
+    {
         $request->validate([
-                'title'=> 'required|max:255',
-                'description'=> 'required',
-                'funding_goal'=> 'required|numeric|min:1'            
-                ]) ;
+            'title' => 'required|max:255',
+            'description' => 'required',
+            'funding_goal' => 'required|numeric|min:1',
+        ]);
 
         $idea = Idea::create([
             'title' => $request->title,
@@ -53,54 +46,55 @@ class IdeaController extends Controller
             'funding_goal' => $request->funding_goal,
             'user_id' => auth()->id(),
             'current_amount' => 0,
-
         ]);
-        return redirect()->route('ideas.show', $idea->id)->with('success','Idea Created Successfully!');
+
+        return redirect()->route('ideas.show', $idea->id)->with('success', 'Idea Created Successfully!');
     }
 
-
-    public function edit($id){ 
+    public function edit($id)
+    {
         $idea = Idea::findOrFail($id);
+
         if ($idea->user_id !== auth()->id()) {
             abort(403, 'You are not authorized to edit this idea.');
         }
+
         return view('pages.edit_idea', compact('idea'));
     }
 
-
     public function update(Request $request, $id)
     {
-        $request->validate([
-            'title' => 'required|max:255',
-            'description' => 'required',
-            'funding_goal' => 'required|numeric|min:1'
-        ]);
-    
         $idea = Idea::findOrFail($id);
+
         if ($idea->user_id !== auth()->id()) {
             abort(403, 'You are not authorized to update this idea.');
         }
-    
+
+        $request->validate([
+            'title' => 'required|max:255',
+            'description' => 'required',
+            'funding_goal' => 'required|numeric|gte:' . $idea->current_amount,
+        ]);
+
         $idea->update([
             'title' => $request->title,
             'description' => $request->description,
-            'funding_goal' => $request->funding_goal
+            'funding_goal' => $request->funding_goal,
         ]);
-    
-        return redirect('/')->with('success', 'Idea updated successfully!');
+
+        return redirect()->route('ideas.show', $idea->id)->with('success', 'Idea updated successfully!');
     }
 
-
     public function destroy($id)
-        {
-            $idea = Idea::findOrFail($id);
-            if ($idea->user_id !== auth()->id()) {
-                abort(403, 'You are not authorized to delete this idea.');
-            }
+    {
+        $idea = Idea::findOrFail($id);
 
-            $idea->delete();
-
-            return redirect('/')->with('success', 'Idea deleted successfully!');
+        if ($idea->user_id !== auth()->id()) {
+            abort(403, 'You are not authorized to delete this idea.');
         }
-    
+
+        $idea->delete();
+
+        return redirect()->route('ideas.index')->with('success', 'Idea deleted successfully!');
+    }
 }

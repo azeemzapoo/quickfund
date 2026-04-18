@@ -4,7 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use App\Models\idea;
+use App\Models\Idea;
 
 class IdeaSeeder extends Seeder
 {
@@ -18,7 +18,7 @@ class IdeaSeeder extends Seeder
 
         // lets seed some test data
 
-        idea::create([
+        Idea::create([
             'title' => 'Campus Food App',
             'description' => 'An app for students to order affordable meals on campus',
             'funding_goal' => 500,
@@ -26,7 +26,7 @@ class IdeaSeeder extends Seeder
             'user_id' => 1
         ]);
     
-        idea::create([
+        Idea::create([
             'title' => 'Student Marketplace',
             'description' => 'Platform for students to buy and sell used items',
             'funding_goal' => 800,
@@ -34,7 +34,7 @@ class IdeaSeeder extends Seeder
             'user_id' => 1
         ]);
     
-        idea::create([
+        Idea::create([
             'title' => 'Study Buddy Finder',
             'description' => 'Find study partners based on courses and availability',
             'funding_goal' => 300,

@@ -5,8 +5,8 @@ namespace Database\Seeders;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\Contribution;
+use App\Models\Idea;
 use App\Models\User;
-use App\Models\idea;
 
 class ContributionSeeder extends Seeder
 {
@@ -18,16 +18,16 @@ class ContributionSeeder extends Seeder
         //seed some test data for contributions
 
         $user = User::first();
-        $idea = idea::first();
+        $idea = Idea::first();
 
     Contribution::create([
-        'role' => 'investor',
+        'role' => 'Research',
         'user_id' => $user->id,
         'idea_id' => $idea->id,
     ]);
 
     Contribution::create([
-        'role' => 'contributor',
+        'role' => 'Developer',
         'user_id' => $user->id,
         'idea_id' => $idea->id,
     ]);

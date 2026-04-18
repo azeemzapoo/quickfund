@@ -18,6 +18,9 @@ Route::get('/', function () {
     return view('pages.home');
 });
 
+Route::get('/ideas', [IdeaController::class, 'index'])->name('ideas.index');
+Route::get('/ideas/{id}', [IdeaController::class, 'show'])->name('ideas.show');
+
 /*
 |--------------------------------------------------------------------------
 | Dashboard (Auth Protected)
@@ -25,7 +28,23 @@ Route::get('/', function () {
 */
 
 Route::get('/dashboard', function () {
-    return view('dashboard');
+    $user = request()->user()->load([
+        'ideas.pledges',
+        'contributions.idea',
+        'investments',
+    ]);
+
+    $ideas = $user->ideas->sortByDesc('created_at')->values();
+    $contributions = $user->contributions->sortByDesc('created_at')->values();
+
+    $stats = [
+        'ideas_posted' => $ideas->count(),
+        'total_raised' => (int) $ideas->sum('current_amount'),
+        'supporters' => (int) $ideas->sum(fn ($idea) => $idea->pledges->count()),
+        'investments_made' => $user->investments->count(),
+    ];
+
+    return view('dashboard', compact('user', 'ideas', 'contributions', 'stats'));
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 /*
@@ -44,17 +63,15 @@ require __DIR__.'/auth.php';
 
 /*
 |--------------------------------------------------------------------------
-| Ideas (CRUD) - Protected
+| Ideas Actions (Auth Protected)
 |--------------------------------------------------------------------------
 */
 
 Route::middleware('auth')->group(function () {
 
-    Route::get('/ideas', [IdeaController::class, 'index'])->name('ideas.index');
     Route::get('/ideas/create', [IdeaController::class, 'create'])->name('ideas.create');
     Route::post('/ideas', [IdeaController::class, 'store'])->name('ideas.store');
 
-    Route::get('/ideas/{id}', [IdeaController::class, 'show'])->name('ideas.show');
     Route::get('/ideas/{id}/edit', [IdeaController::class, 'edit'])->name('ideas.edit');
     Route::put('/ideas/{id}', [IdeaController::class, 'update'])->name('ideas.update');
     Route::delete('/ideas/{id}', [IdeaController::class, 'destroy'])->name('ideas.destroy');

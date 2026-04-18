@@ -6,10 +6,10 @@
 
         <div class="flex items-center gap-6 text-sm font-medium text-gray-700">
             <a href="{{ url('/') }}" class="hover:text-emerald-600">Home</a>
+            <a href="{{ route('ideas.index') }}" class="hover:text-emerald-600">Ideas</a>
 
             @auth
                 <a href="{{ route('dashboard') }}" class="hover:text-emerald-600">Dashboard</a>
-                <a href="{{ route('ideas.index') }}" class="hover:text-emerald-600">Ideas</a>
                 <a href="{{ route('profile.edit') }}" class="hover:text-emerald-600">Profile</a>
 
                 <form method="POST" action="{{ route('logout') }}">

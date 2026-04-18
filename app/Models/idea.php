@@ -4,17 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class idea extends Model
+class Idea extends Model
 {
-    //
-
     protected $fillable = [
         'title',
         'description',
         'funding_goal',
         'current_amount',
-        'user_id'
-
+        'user_id',
     ];
 
     public function user()

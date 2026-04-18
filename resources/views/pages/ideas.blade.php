@@ -308,6 +308,18 @@
         color: #6b7a96;
     }
 
+    .ideas-flash {
+        margin-top: 1.5rem;
+        border: 1px solid #cfe9de;
+        border-radius: 16px;
+        background: #edf8f2;
+        color: #23795e;
+        padding: 0.95rem 1rem;
+        font-size: 0.92rem;
+        line-height: 1.6;
+        font-weight: 700;
+    }
+
     @media (max-width: 1100px) {
         .ideas-grid {
             grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -338,6 +350,10 @@
     <div class="ideas-wrap" x-data="{ search: '', activeCategory: 'All' }">
         <h1 class="ideas-title">Explore Ideas</h1>
         <p class="ideas-subtitle">Find your next big opportunity to support or join.</p>
+
+        @if (session('success'))
+            <div class="ideas-flash">{{ session('success') }}</div>
+        @endif
 
         <div class="ideas-toolbar">
             <div class="ideas-search">

@@ -4,9 +4,9 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use App\Models\Idea;
 use App\Models\Pledge;
 use App\Models\User;
-use App\Models\idea;
 
 
 
@@ -20,7 +20,7 @@ class PledgeSeeder extends Seeder
         //seed some test data for pledges
 
         $user = User::first();
-        $idea = idea::first();
+        $idea = Idea::first();
 
 
     Pledge::create([

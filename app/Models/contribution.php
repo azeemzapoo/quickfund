@@ -4,16 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class contribution extends Model
+class Contribution extends Model
 {
-    //
-
     protected $fillable = [
         'role',
         'user_id',
         'idea_id',
     ];
-
 
     public function idea()
     {
@@ -24,6 +21,4 @@ class contribution extends Model
     {
         return $this->belongsTo(User::class);
     }
-
-    
 }

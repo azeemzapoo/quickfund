@@ -7,6 +7,7 @@
     $initials = collect($parts)->take(2)->map(fn ($part) => strtoupper(substr($part, 0, 1)))->implode('') ?: 'NA';
     $goal = max((int) $idea->funding_goal, 1);
     $current = max((int) $idea->current_amount, 0);
+    $remaining = max(0, $goal - $current);
     $progress = min((int) round(($current / $goal) * 100), 100);
     $daysLeft = max(1, 30 - (int) optional($idea->created_at)->diffInDays(now()));
     $text = strtolower(trim($idea->title . ' ' . $idea->description));
@@ -143,6 +144,42 @@
         font-weight: 800;
     }
 
+    .owner-actions {
+        display: flex;
+        gap: 0.8rem;
+        margin-top: 1.35rem;
+        flex-wrap: wrap;
+    }
+
+    .owner-action {
+        min-height: 42px;
+        padding: 0 1rem;
+        border-radius: 12px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        font-size: 0.92rem;
+        font-weight: 700;
+    }
+
+    .owner-action.edit {
+        background: #2fb289;
+        color: #fff;
+    }
+
+    .owner-action.delete {
+        border: 0;
+        background: #e25353;
+        color: #fff;
+    }
+
+    .owner-action.view {
+        border: 1px solid #d9e1ec;
+        background: #fff;
+        color: #22314b;
+    }
+
     .contributors-grid {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -250,6 +287,13 @@
         font-size: 0.94rem;
     }
 
+    .fund-remaining {
+        margin-top: 0.85rem;
+        color: #6b7a96;
+        font-size: 0.93rem;
+        font-weight: 600;
+    }
+
     .support-header,
     .join-header {
         display: flex;
@@ -278,6 +322,12 @@
         background: #fff;
         font-size: 0.95rem;
         outline: none;
+    }
+
+    .support-input:focus,
+    .contribute-select:focus {
+        border-color: #2fb289;
+        box-shadow: 0 0 0 4px rgba(47, 178, 137, 0.12);
     }
 
     .support-btn,
@@ -314,6 +364,24 @@
         background: #6a5ae0;
     }
 
+    .invest-input {
+        width: 100%;
+        height: 42px;
+        margin-top: 0.95rem;
+        border: 1px solid #d8d2fb;
+        border-radius: 12px;
+        background: #fff;
+        color: #42506a;
+        font-size: 0.95rem;
+        padding: 0 0.85rem;
+        outline: none;
+    }
+
+    .invest-input:focus {
+        border-color: #6a5ae0;
+        box-shadow: 0 0 0 4px rgba(106, 90, 224, 0.12);
+    }
+
     .join-copy {
         margin: 0.65rem 0 0;
         color: #6b7a96;
@@ -329,6 +397,35 @@
         width: 100%;
         margin-top: 0.8rem;
         background: #2d9cdb;
+    }
+
+    .flash-message,
+    .error-list {
+        border-radius: 16px;
+        padding: 0.95rem 1rem;
+        font-size: 0.92rem;
+        line-height: 1.6;
+    }
+
+    .flash-message {
+        margin-bottom: 1rem;
+        border: 1px solid #cfe9de;
+        background: #edf8f2;
+        color: #23795e;
+        font-weight: 700;
+    }
+
+    .flash-message.error {
+        border-color: #f2d0d0;
+        background: #fff2f2;
+        color: #be3f3f;
+    }
+
+    .error-list {
+        margin-top: 0.85rem;
+        border: 1px solid #f2d0d0;
+        background: #fff2f2;
+        color: #be3f3f;
     }
 
     @media (max-width: 1024px) {
@@ -378,6 +475,20 @@
                 </div>
             </div>
 
+            @auth
+                @if (auth()->id() === $idea->user_id)
+                    <div class="owner-actions">
+                        <a href="{{ route('ideas.edit', $idea->id) }}" class="owner-action edit">Edit Idea</a>
+                        <form method="POST" action="{{ route('ideas.destroy', $idea->id) }}" onsubmit="return confirm('Are you sure you want to delete this idea?');">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="owner-action delete">Delete Idea</button>
+                        </form>
+                        <a href="{{ route('ideas.index') }}" class="owner-action view">Back to Ideas</a>
+                    </div>
+                @endif
+            @endauth
+
             <p class="detail-copy">{{ $idea->description }}</p>
 
             <h2 class="detail-section-title">Team &amp; Contributors</h2>
@@ -426,6 +537,9 @@
                     <span>{{ $idea->pledges_count }} supporters</span>
                     <span>{{ $idea->investments_count }} investors</span>
                 </div>
+                <div class="fund-remaining">
+                    ${{ number_format($remaining) }} remaining to reach the goal
+                </div>
             </section>
 
             <section class="side-card">
@@ -435,10 +549,47 @@
                     </svg>
                     <span>Support this idea</span>
                 </div>
-                <div class="support-form">
-                    <input type="text" class="support-input" placeholder="Amount ($)">
-                    <button type="button" class="support-btn">Support</button>
-                </div>
+                <p class="join-copy" style="margin-top: 0.85rem;">Remaining amount available: ${{ number_format($remaining) }}</p>
+
+                @if (session('success'))
+                    <div class="flash-message">{{ session('success') }}</div>
+                @endif
+
+                @if (session('error'))
+                    <div class="flash-message error">{{ session('error') }}</div>
+                @endif
+
+                @auth
+                    <form method="POST" action="{{ route('pledges.store') }}">
+                        @csrf
+                        <input type="hidden" name="idea_id" value="{{ $idea->id }}">
+                        <div class="support-form">
+                            <input
+                                type="number"
+                                name="amount"
+                                min="1"
+                                step="1"
+                                class="support-input"
+                                placeholder="Amount ($)"
+                                value="{{ old('amount') }}"
+                            >
+                            <button type="submit" class="support-btn">Support</button>
+                        </div>
+                    </form>
+
+                    @if ($errors->has('amount') || $errors->has('idea_id'))
+                        <div class="error-list">
+                            @error('amount')
+                                <div>{{ $message }}</div>
+                            @enderror
+                            @error('idea_id')
+                                <div>{{ $message }}</div>
+                            @enderror
+                        </div>
+                    @endif
+                @else
+                    <a href="{{ route('login') }}" class="support-btn" style="width:100%; margin-top: 1rem; text-decoration:none;">Log in to Support</a>
+                @endauth
             </section>
 
             <section class="side-card invest-box">
@@ -450,7 +601,45 @@
                     <span>Invest in {{ $idea->title }}</span>
                 </div>
                 <p>Become an early investor and grow with this idea.</p>
-                <a href="#" class="invest-btn">Start Investing</a>
+                <p class="join-copy" style="margin-top: 0.6rem;">Remaining amount available: ${{ number_format($remaining) }}</p>
+
+                @if (session('investment_success'))
+                    <div class="flash-message" style="margin-top: 0.9rem;">{{ session('investment_success') }}</div>
+                @endif
+
+                @if (session('investment_error'))
+                    <div class="flash-message error" style="margin-top: 0.9rem;">{{ session('investment_error') }}</div>
+                @endif
+
+                @auth
+                    <form method="POST" action="{{ route('investments.store') }}">
+                        @csrf
+                        <input type="hidden" name="idea_id" value="{{ $idea->id }}">
+                        <input
+                            type="number"
+                            name="amount"
+                            min="1"
+                            step="1"
+                            class="invest-input"
+                            placeholder="Investment amount ($)"
+                            value="{{ old('amount') }}"
+                        >
+                        <button type="submit" class="invest-btn">Start Investing</button>
+                    </form>
+
+                    @if ($errors->investment->has('amount') || $errors->investment->has('idea_id'))
+                        <div class="error-list">
+                            @if ($errors->investment->has('amount'))
+                                <div>{{ $errors->investment->first('amount') }}</div>
+                            @endif
+                            @if ($errors->investment->has('idea_id'))
+                                <div>{{ $errors->investment->first('idea_id') }}</div>
+                            @endif
+                        </div>
+                    @endif
+                @else
+                    <a href="{{ route('login') }}" class="invest-btn" style="text-decoration:none;">Log in to Invest</a>
+                @endauth
             </section>
 
             <section class="side-card">
@@ -464,14 +653,42 @@
                     <span>Join as Contributor</span>
                 </div>
                 <p class="join-copy">Collaborate with the team by bringing your skills to the project.</p>
-                <select class="contribute-select">
-                    <option>Select your skill</option>
-                    <option>Developer</option>
-                    <option>Designer</option>
-                    <option>Marketing</option>
-                    <option>Research</option>
-                </select>
-                <button type="button" class="contribute-btn">Apply to Contribute</button>
+
+                @if (session('contribution_success'))
+                    <div class="flash-message" style="margin-top: 0.9rem;">{{ session('contribution_success') }}</div>
+                @endif
+
+                @if (session('contribution_error'))
+                    <div class="flash-message error" style="margin-top: 0.9rem;">{{ session('contribution_error') }}</div>
+                @endif
+
+                @auth
+                    <form method="POST" action="{{ route('contributions.store') }}">
+                        @csrf
+                        <input type="hidden" name="idea_id" value="{{ $idea->id }}">
+                        <select name="role" class="contribute-select">
+                            <option value="">Select your skill</option>
+                            <option value="Developer" @selected(old('role') === 'Developer')>Developer</option>
+                            <option value="Designer" @selected(old('role') === 'Designer')>Designer</option>
+                            <option value="Marketing" @selected(old('role') === 'Marketing')>Marketing</option>
+                            <option value="Research" @selected(old('role') === 'Research')>Research</option>
+                        </select>
+                        <button type="submit" class="contribute-btn">Apply to Contribute</button>
+                    </form>
+
+                    @if ($errors->contribution->has('role') || $errors->contribution->has('idea_id'))
+                        <div class="error-list">
+                            @if ($errors->contribution->has('role'))
+                                <div>{{ $errors->contribution->first('role') }}</div>
+                            @endif
+                            @if ($errors->contribution->has('idea_id'))
+                                <div>{{ $errors->contribution->first('idea_id') }}</div>
+                            @endif
+                        </div>
+                    @endif
+                @else
+                    <a href="{{ route('login') }}" class="contribute-btn" style="text-decoration:none;">Log in to Contribute</a>
+                @endauth
             </section>
         </aside>
     </div>

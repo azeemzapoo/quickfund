@@ -4,10 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class pledge extends Model
+class Pledge extends Model
 {
-    //
-
     protected $fillable = [
         'amount',
         'user_id',

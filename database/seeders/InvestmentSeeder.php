@@ -4,9 +4,9 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use App\Models\Idea;
 use App\Models\Investment;
 use App\Models\User;
-use App\Models\idea;
 
 
 class InvestmentSeeder extends Seeder
@@ -19,7 +19,7 @@ class InvestmentSeeder extends Seeder
         //seed some test data for investments
 
         $user = User::first();
-        $idea = idea::first();
+        $idea = Idea::first();
 
     Investment::create([
         'amount' => 100,
